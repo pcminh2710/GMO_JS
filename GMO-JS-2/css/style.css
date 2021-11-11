@@ -1,0 +1,38 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+.wrap {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+}
+#city {
+  padding: 5px 100px;
+}
+.content {
+  border: solid 2px black;
+  padding: 20px 30px;
+}
+#ol-content li {
+  padding: 10px 0;
+  list-style: none;
+  margin: 5px 0;
+}
+.hn #hn,
+.sg #sg,
+.dn #dn,
+.hue #hue,
+.hp #hp,
+.nt #nt,
+.chan #sg,
+.chan #hue,
+.chan #nt,
+.le #hn,
+.le #dn,
+.le #hp {
+  background-color: rgb(247, 65, 65);
+  border-radius: 10px;
+}
