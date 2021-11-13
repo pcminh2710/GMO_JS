@@ -1,137 +1,88 @@
-
-var render = document.querySelector('.content-message-2');
-var render2 = document.querySelector('.content-message');
+const render1 = document.querySelector('.content-message-2');
+const render2 = document.querySelector('.content-message');
 const input2 = document.getElementById('content-send-2');
-const input = document.getElementById('content-send');
-let checkBold = true;
-let checkItalic = true;
-function clickSend() {
-    var text = document.getElementById('content-send').value;
-    var node = document.createElement("LI");
-    // Xử lý khi chọn đậm nhiên và send thì thêm css 
-    if (input.name === 'bold') {
-        node.className = 'bold'
-    } else if (input.name === 'italic') {
-        node.className = 'italic'
+const input1 = document.getElementById('content-send');
+const bold1 = document.getElementById('dam');
+const bold2 = document.getElementById('dam-2');
+const italic1 = document.getElementById('nghieng');
+const italic2 = document.getElementById('nghieng-2');
+let style = 'normal';
+// Xử lý chữ đậm
+function handleBold(btnBold, btnItalic, input) {
+    const isChooseBold = btnBold.classList.toggle('choose')
+    input.style.fontStyle = "normal";
+    if (isChooseBold) {
+        btnItalic.classList.remove('choose');
+        input.style.fontWeight = "bold";
+        style = 'bold';
+    } else {
+        input.style.fontWeight = "normal";
+        style = 'normal';
     }
-    var textnode = document.createTextNode(text);
-    node.appendChild(textnode);
+}
+//xử lý chữ nghiêng
+function handleItalic(btnBold, btnItalic, input) {
+    const isChooseItalic = btnItalic.classList.toggle('choose')
+    input.style.fontWeight = "normal";
+    if (isChooseItalic) {
+        btnBold.classList.remove('choose');
+        input.style.fontStyle = 'italic';
+        style = 'italic';
+    } else {
+        input.style.fontStyle = "normal";
+        style = 'normal';
+    }
+}
+// Xử lý click send
+function handleClickSend(input, render, dam, italic) {
+    const value = input.value;
+    const node = document.createElement("LI");
+    node.className = style;
+    const textNode = document.createTextNode(value);
+    node.appendChild(textNode);
     render.appendChild(node);
-    document.getElementById('content-send').value = '';
+    handleClear(input, dam, italic)
 }
-
+// xử lý khi nhấn reset
+function handleClear(input, btnBold, btnItalic) {
+    input.value = '';
+    input.style.fontStyle = 'normal';
+    input.style.fontWeight = 'normal';
+    btnBold.className = '';
+    btnItalic.className = '';
+    style = 'normal';
+}
+// Xử lý send bên phải
 function clickSend2() {
-    var text = document.getElementById('content-send-2').value;
-    var node = document.createElement("LI");
-    // Xử lý khi chọn đậm nhiên và send thì thêm css 
-    if (input2.name === 'bold') {
-        node.className = 'bold'
-    } else if (input2.name === 'italic') {
-        node.className = 'italic'
-    }
-    // xử lý giử nhiều tin nhắn 
-    var textnode = document.createTextNode(text);
-    node.appendChild(textnode);
-    render2.appendChild(node);
-    document.getElementById('content-send-2').value = '';
-
+    handleClickSend(input2, render2, bold2, italic2)
 }
-// reset
+// Xử lý send bên trái
+function clickSend() {
+    handleClickSend(input1, render1, bold1, italic1)
+}
+// Xử lý reset bên trái
 function reset() {
-    var list = document.querySelector('.content-message')
-    var li = list.getElementsByTagName("LI");
-    for (var i = 0, len = li.length; i != len; ++i) {
-        li[0].parentNode.removeChild(li[0]);
-    }
-    // Xóa chữ đậm và nghien
-    document.getElementById('dam').classList.remove('choose');
-    document.getElementById('nghieng').classList.remove('choose');
-    input.style = "font-weight:normal";
-    //Xóa dữ liệu trong input khi bấm reset
-    document.getElementById('content-send').value = "";
+    handleClear(input1, bold1, italic1)
+    render2.innerHTML = ''
 }
+// Xử lý reset bên phải
 function reset2() {
-    var list = document.querySelector('.content-message-2')
-    var li = list.getElementsByTagName("LI");
-    for (var i = 0, len = li.length; i != len; ++i) {
-        li[0].parentNode.removeChild(li[0]);
-    }
-    // Xóa chữ đậm và nghiên
-    document.getElementById('dam-2').classList.remove('choose');
-    document.getElementById('nghieng-2').classList.remove('choose');
-    input2.style = "font-weight:normal";
-    //Xóa dữ liệu trong input khi bấm reset
-    document.getElementById('content-send-2').value = "";
+    handleClear(input2, bold2, italic2)
+    render1.innerHTML = ''
 }
-
-// Xử lý chữ đậm  cho khung bên phải
-function dam2() {
-    // xử lý chọn và bỏ chọn đậm
-    if (checkBold) {
-        document.getElementById('dam-2').classList.add('choose');
-        input2.style = "font-weight:bold";
-        input2.name = 'bold'
-        checkBold = false
-    } else {
-        document.getElementById('dam-2').classList.remove('choose');
-        // input2.style = "font-weight:100";
-        input2.name = 'normal'
-        checkBold = true
-    }
-    //Xóa chữ nghiên khi chọn đậm
-    document.getElementById('nghieng-2').classList.remove('choose');
+// Xử lý đậm bên trái
+function handleBoldOne() {
+    handleBold(bold1, italic1, input1)
 }
-//Xử lý chữ nghiêng cho khung bên phải
-function nghieng2() {
-    //xử lý chọn và bỏ chọn chữ nghiên 
-    if (checkItalic) {
-        document.getElementById('nghieng-2').classList.add('choose');
-        input2.style = "font-style:italic";
-        input2.name = 'italic'
-        checkItalic = false
-    } else {
-        document.getElementById('nghieng-2').classList.remove('choose');
-        input2.name = 'normal'
-        checkItalic = true;
-    }
-    // Xóa chữ nghiên khi đạm khi chọn nghiêng
-    document.getElementById('dam-2').classList.remove('choose');
+// Xử lý nghiêng bên trái
+function handleItalicOne() {
+    handleItalic(bold1, italic1, input1)
 }
-
-// Xử lý chữ đậm  cho khung bên Trái
-function dam() {
-    // xử lý chọn và bỏ chọn đậm
-    if (checkBold) {
-        document.getElementById('dam').classList.add('choose');
-        input.style = "font-weight:bold";
-        input.name = 'bold'
-        checkBold = false
-    } else {
-        document.getElementById('dam').classList.remove('choose');
-        // input.style = "font-weight:100";
-        input.name = 'normal'
-        checkBold = true
-    }
-    //Xóa chữ nghiên khi chọn đậm
-    document.getElementById('nghieng').classList.remove('choose');
+// Xử lý đậm bên phải
+function handleBoldTwo() {
+    handleBold(bold2, italic2, input2)
 }
-//Xử lý chữ nghiêng cho khung bên Trái
-function nghieng() {
-    //xử lý chọn và bỏ chọn chữ nghiên 
-    if (checkItalic) {
-        document.getElementById('nghieng').classList.add('choose');
-        input.style = "font-style:italic";
-        input.name = 'italic'
-        checkItalic = false
-    } else {
-        document.getElementById('nghieng').classList.remove('choose');
-        input.name = 'normal'
-        checkItalic = true;
-    }
-    // Xóa chữ nghiên khi đạm khi chọn nghiêng
-    document.getElementById('dam').classList.remove('choose');
+// Xử lý nghiêng bên phải
+function handleItalicTwo() {
+    handleItalic(bold2, italic2, input2)
 }
-
-
-
-
