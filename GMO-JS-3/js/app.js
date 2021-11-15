@@ -34,13 +34,19 @@ function handleItalic(btnBold, btnItalic, input) {
     }
 }
 // Xử lý click send
-function handleClickSend(input, render, dam, italic) {
+function handleClickSend(input, senderElement, receiverElement, dam, italic) {
     const value = input.value;
-    const node = document.createElement("LI");
-    node.className = style;
-    const textNode = document.createTextNode(value);
-    node.appendChild(textNode);
-    render.appendChild(node);
+    const node1 = document.createElement("LI");
+    node1.classList.add( "mes", "sender", style)
+    const textNode1 = document.createTextNode(value);
+    node1.appendChild(textNode1);
+    receiverElement.appendChild(node1);
+
+    const node2 = document.createElement("LI");
+    node2.classList.add( "mes", "receiver", style)
+    const textNode2 = document.createTextNode(value);
+    node2.appendChild(textNode2);
+    senderElement.appendChild(node2);
     handleClear(input, dam, italic)
 }
 // xử lý khi nhấn reset
@@ -54,11 +60,11 @@ function handleClear(input, btnBold, btnItalic) {
 }
 // Xử lý send bên phải
 function clickSend2() {
-    handleClickSend(input2, render2, bold2, italic2)
+    handleClickSend(input2, render2, render1, bold2, italic2)
 }
 // Xử lý send bên trái
 function clickSend() {
-    handleClickSend(input1, render1, bold1, italic1)
+    handleClickSend(input1, render1, render2, bold1, italic1)
 }
 // Xử lý reset bên trái
 function reset() {
