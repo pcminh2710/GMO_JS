@@ -1,5 +1,5 @@
 const render1 = document.querySelector('.content-message-2');
-const render2 = document.querySelector('.content-message');
+const render2 = document.querySelector('.content-message'); 
 const input2 = document.getElementById('content-send-2');
 const input1 = document.getElementById('content-send');
 const bold1 = document.getElementById('dam');

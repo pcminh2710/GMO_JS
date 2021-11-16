@@ -1,3 +1,5 @@
+.container {
+}
 .wrap {
   display: flex;
   border: solid 2px black;
@@ -95,9 +97,22 @@ ul {
 li + li {
   margin-top: 5px;
 }
-@media (max-width: 550px) {
+@media (max-width: 740px) {
   #send, #send-2 {
     background-color: white;
     padding: 10px 15px;
+}
+.wrap {
+  display: flex;
+ 
+  width: 100%;
+  flex-direction: column;
+}
+.message {
+  width: auto;
+}
+.wrap {
+ width: auto;
+ margin-left: 0;
 }
 }
