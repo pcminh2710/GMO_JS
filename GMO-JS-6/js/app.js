@@ -22,23 +22,24 @@ function add() {
     }
 }
 function clear() {
-    document.getElementById('name').value = "";
-    document.getElementById('phone').value = "";
-    document.getElementById('email').value = "";
+   var clClear = document.querySelectorAll(".clear");
+   for(var i = 0; i < clClear.length; i++)
+    {
+       clClear[i].value ="" ;
+    }
 }
 // Xử lý check all
 const checkAllElement = document.querySelector('.checkAll')
 checkAllElement.onclick = function (e) {
     const cb = document.querySelectorAll('.checkBoxItem');
+    cb.forEach(item => {
     if (e.target.checked === true) {
-        cb.forEach(item => {
             item.checked = true
-        })
-    } else {
-        cb.forEach(item => {
+        } else {
             item.checked = false
-        })
-    }
+        }
+        });
+   
 }
 // delete action
 function deleteItem(id) {
