@@ -1,119 +1,159 @@
-// Xử lý validate require
-function handleBlurRequired(event) {
-    //Xử lý chuỗi fullname brithday, pass, confirmpass rổng
-    if (event.target.name === 'fullName', 'birthday', 'password', 'confirmpassword') {
-        if (event.target.value.trim().length === 0) {
-            // Thêm class invalid khi data input emty
-            event.target.parentElement.classList.add('invalid')
-            event.target.nextElementSibling.innerHTML = 'Vui lòng nhập trường này'
+//Hàm Validator
+function Validator(options) {
+    var selectorRules = {}
+    // Hàm thực hiện validate
+    function validate(inputElement, rule) {
+        var errorElement = inputElement.parentElement.querySelector(options.errorSelector);
+        var errorMessage;
+        // Lấy ra cái rule của selecter 
+        var rules = selectorRules[rule.selector];
+        // Lặp qua từng rule và kiểm tra
+        // Nếu có lỗi thì breack
+        for (var i = 0; i < rules.length; ++i) {
+            errorMessage = rules[i](inputElement.value);
+            if (errorMessage) break;
         }
-    }
-}
-// Xử lý validate Email 
-function handleBlurEmail(event) {
-    //Xử lý chuỗi email rổng và nhập sai email
-    if (event.target.name === 'email') {
-        var pattern = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        var email = event.target.value;
-        if (email.match(pattern)) {
-            event.target.parentElement.classList.remove('invalid')
-            event.target.nextElementSibling.innerHTML = '';
+        if (errorMessage) {
+            errorElement.innerText = errorMessage;
+            inputElement.parentElement.classList.add('invalid');
         } else {
-            event.target.parentElement.classList.add('invalid')
-            event.target.nextElementSibling.innerHTML = 'Trường này phải là Email';
+            errorElement.innerText = "";
+            inputElement.parentElement.classList.remove('invalid');
         }
-        //Nếu giá input email có giá không có giá thị thì báo lỗi
-        if (event.target.value.trim().length === 0) {
-            event.target.parentElement.classList.add('invalid')
-            event.target.nextElementSibling.innerHTML = 'Vui lòng nhập trường này'
+        return !errorMessage;
+    }
+    // lấy elemaent của form cần validate
+    var formElement = document.querySelector(options.form)
+    if (formElement) {
+        // khi submit form
+        formElement.onsubmit = function (e) {
+            e.preventDefault();
+            var isFormValid = true;
+            // Thực hiện lặp qua từ rule và validate
+            options.rules.forEach(function (rule) {
+                var inputElement = formElement.querySelector(rule.selector);
+                var isValid = validate(inputElement, rule);
+                if (!isValid) {
+                    isFormValid = false;
+                }
+                // Show hình ảnh xún dưới
+                const img = document.querySelector('.img-ctl');
+                const imgEnd = document.querySelector('.img-ctl.end');
+                imgEnd.src = img.src;
+            });
+            if (isFormValid) {
+                if (typeof options.onSubmit === 'function') {
+                    var enableInputs = formElement.querySelectorAll('[name]');
+                    var formValues = Array.from(enableInputs).reduce(function (values, input) {
+                        values[input.name] = input.value;
+                        return values;
+                    }, {});
+                    options.onSubmit(formValues)
+                }
+                else {
+                    formElement.submit();
+                }
+            }
         }
+        // Lặp qua mỗi rule và xử lý
+        options.rules.forEach(function (rule) {
+            // Lưu lại cái rule cho mỗi in put 
+            if (Array.isArray(selectorRules[rule.selector])) {
+                selectorRules[rule.selector].push(rule.test);
+            } else {
+                selectorRules[rule.selector] = [rule.test];
+            }
+            var inputElement = formElement.querySelector(rule.selector);
+            if (inputElement) {
+                // Xử lý khi blur ra ngoài input
+                inputElement.onblur = function () {
+                    validate(inputElement, rule)
+                }
+                // Xử lý khi người dùng nhập vào input
+                inputElement.oninput = function () {
+                    var errorElement = inputElement.parentElement.querySelector(options.errorSelector)
+                    // Full name viết hoa HC
+                    document.getElementById('fullname').value = titleCase(document.getElementById('fullname').value)
+                    //  console.log(inputElement.value)
+                    errorElement.innerText = "";
+                    inputElement.parentElement.classList.remove('invalid')
+                }
+            }
+        });
     }
 }
-// Xử lý validate Phone 
-function handleBlurPhone(event) {
-    //Xử lý phone rổng
-    if (event.target.name === 'phone') {
-        // số điện thoại quá 10 số
-        if (event.target.value.trim().length === 10) {
-        } else {
-            event.target.parentElement.classList.add('invalid')
-            event.target.nextElementSibling.innerHTML = 'Số điện thoại sai '
+//Định nghĩa các rule
+// khi có lỗi thì trả về messgar lỗi
+// khi không có lỗi thì không trả về gì ả undifile
+Validator.isRequired = function (selector) {
+    return {
+        selector: selector,
+        test: function (value) {
+            return value.trim() ? undefined : "Vui lòng nhập trường này"
         }
-        // số điện thoại bắt đầu bằng sô 0
-        if (!event.target.value.startsWith(0)) {
-            event.target.parentElement.classList.add('invalid')
-            event.target.nextElementSibling.innerHTML = 'Số điện phải bắt đầu bằng số 0'
-        } if (event.target.value.trim().length === 0) {
-            event.target.parentElement.classList.add('invalid')
-            event.target.nextElementSibling.innerHTML = 'Vui lòng nhập trường này'
-        }
-        //format số khi nhập đúng
-        if (event.target.value.length === 10) {
-            var numberFormat = event.target.value.toString();
-            event.target.value = formatPhoneNumber(numberFormat);
-        }
-    }
+    };
 }
-//Xử lý xóa class khi input có giá trị
-function handleInputRemove(event) {
-    if (event.target.name === 'fullName', 'email', 'phone', 'birthday') {
-        event.target.value = titleCase(event.target.value);
-        event.target.parentElement.classList.remove('invalid');
-        event.target.nextElementSibling.innerHTML = '';
-    }
+Validator.isMaxLength = function (selector, length) {
+    return {
+        selector: selector,
+        test: function (value) {
+            if (value.trim().length <= length) {
+                return undefined;
+            } else {
+                return "Tên quá dài";
+            }
+        }
+    };
 }
-//Xử lý validate password
-function handleInputPass(event) {
-    if (event.target.name === 'password') {
-        event.target.parentElement.classList.remove('invalid');
-        event.target.nextElementSibling.innerHTML = '';
-    }
-    //Xử lý passwword
-    if (event.target.name === 'password') {
+Validator.isEmail = function (selector) {
+    return {
+        selector: selector,
+        test: function (value) {
+            var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+            return regex.test(value) ? undefined : 'Vui lòng nhập đúng Email của bạn'
+        }
+    };
+}
+Validator.Pass = function (selector) {
+    return {
+        selector: selector,
+        test: function (value) {
+            var regexPass = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+            return regexPass.test(value) ? undefined : 'Mật khẩu phải bao gồm chữ cái viết hoa, thường, số, ký tự đặt biệt'
+        }
+    };
+}
+Validator.confirmPass = function (selector, getConfirmValue, message) {
+    return {
+        selector: selector,
+        test: function (value) {
+            return value === getConfirmValue() ? undefined : message || 'Giá trị không đúng'
+        }
+    };
+}
+Validator.isPhone = function (selector) {
+    return {
+        selector: selector,
+        test: function (value) {
+            // xử lý số điện thoại không phải 10 số
+            if (value.length === 10) {
+                // xử lý số điện thoại phải bắt đầu bằng số 0
+                if (value.startsWith(0)) {
+                    return undefined;
+                } else {
+                    return 'Số điện thoại phải bắt đầu bằng số 0'
+                }
+            } else {
 
-        if (event.target.value.length < 8) {
-            event.target.parentElement.classList.add("invalid");
-            event.target.nextElementSibling.innerHTML = 'Mật khẩu phải trên 8 ký tự '
-        }
-        var special = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
-        if (!event.target.value.match(special)) {
-            event.target.parentElement.classList.add("invalid");
-            event.target.nextElementSibling.innerHTML = 'Mật khẩu phải có một ký tự đặt biêt'
-        }
-        //Kiểm tra chữ thường
-        var lowerCaseLetters = /[a-z]/g;
-        if (!event.target.value.match(lowerCaseLetters)) {
-            event.target.parentElement.classList.add("invalid");
-            event.target.nextElementSibling.innerHTML = 'Mật khẩu phải có một chữ thường'
-        }
-        //Kiểm tra chữ hoa
-        var upperCaseLetters = /[A-Z]/g;
-        if (!event.target.value.match(upperCaseLetters)) {
-            event.target.parentElement.classList.add("invalid");
-            event.target.nextElementSibling.innerHTML = 'Mật khẩu phải có một chữ hoa'
-        }
-        var numbers = /[0-9]/g;
-        if (!event.target.value.match(numbers)) {
-            event.target.parentElement.classList.add("invalid");
-            event.target.nextElementSibling.innerHTML = 'Mật khẩu phải có một số '
-        }
-    }
+                return " Số điện thoại phải là 10 số"
+            }
+
+        },
+
+    };
 }
-// Xử lý validate confirmPasss
-function handleInputConfirmPass(event) {
-    if (event.target.name === 'confirmpassword') {
-        event.target.parentElement.classList.remove('invalid');
-        event.target.nextElementSibling.innerHTML = '';
-        var pw1 = document.getElementById('password').value;
-        var pw2 = event.target.value
-        if (pw1 != pw2) {
-            event.target.parentElement.classList.add("invalid");
-            event.target.nextElementSibling.innerHTML = 'Mật khẩu không giống nhau'
-        } else {
-            return true;
-        }
-    }
-}
+
+// 
 // Xử lý viết hoa chữ cái đầu
 function titleCase(string) {
     //1. Tách các từ, cụm từ trong chuỗi ban đầu
@@ -125,75 +165,28 @@ function titleCase(string) {
     //3. Nối các từ, cụm từ đã xử lý ở trên và trả về kết quả
     return sentence.join(" ");
 }
-// Xử lý format sđt
-function formatPhoneNumber(phoneNumberString) {
-    let cleaned = ('' + phoneNumberString).replace(/\D/g, '')
-    let match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
-    if (match) {
-        return match[1] + '-' + match[2] + '-' + match[3]
-    };
-    return null
-}
 //chỉ cho nhập số trong text sđt 
 function isNumberKey(e) {
-    var charCode = (e.which) ? e.which : e.keyCode; 
+    var charCode = (e.which) ? e.which : e.keyCode;
     //Các phím được nhấn nằm trong khoảng từ 31 đên 48 và không lớn 57
     //Có nghĩa la cái phím được nhấn phải nằm trong khoảng từ 48 đến 57 (key code)
     if (charCode > 31 && (charCode < 48 || charCode > 57))
         return false;
     return true;
 }
-// Render 
-var textname = document.getElementById('text-fullname');
-var textemail = document.getElementById('text-email');
-var textphone = document.getElementById('text-phone');
-var textbirthday = document.getElementById('text-birthday');
-const img = document.querySelector('.img-ctl')
-const imgEnd = document.querySelector('.img-ctl.end')
-// Add dữ liệu xuống form phía dưới
-function add() {
-    var fullname = document.querySelector('#fullname').value;
-    var email = document.getElementById('email').value;
-    var phone = document.getElementById('phone').value;
-    var birthday = document.getElementById('birthday').value;
-    console.log(fullname, email, phone, birthday)
-    //Show các dữ liệu ra form
-    textname.innerHTML = fullname;
-    textemail.innerHTML = email;
-    textphone.innerHTML = phone;
-    textbirthday.innerHTML = birthday;
-    // show hình  ra form dưới
-    imgEnd.src = img.src
-}
 //Reset
-function reset() {
-    textname.innerHTML = '';
-    textemail.innerHTML = '';
-    textphone.innerHTML = '';
-    textbirthday.innerHTML = '';
-    // Remove các class validate
-    document.querySelector('.form-item').classList.remove('invalid');
-    document.querySelector('.form-message').innerHTML = '';
-    // Remove các giá trị trong input
-    document.getElementById('fullname').value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('birthday').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('confirmpassword').value = '';
-    // Xóa hình ảnh 
-    img.src= 'https://st.quantrimang.com/photos/image/2017/04/08/anh-dai-dien-FB-200.jpg';
-    imgEnd.src= 'https://st.quantrimang.com/photos/image/2017/04/08/anh-dai-dien-FB-200.jpg';
+function reeset() {
+    location.reload();
 }
 // Nhấn Shift để add
 window.addEventListener('keydown', click)
 function click(e) {
     if (e.keyCode == 16) {
-        add();
+        document.getElementById('submit').click();
     }
     // Nhấn delete để reset 
     if (e.keyCode == 46) {
-        reset();
+        reeset();
     }
 }
 // Xử lý upload hình ảnh
@@ -214,3 +207,34 @@ const inputimgElement = document.querySelector('#inputimg')
 function uploadAvt() {
     inputimgElement.click()
 }
+
+// Form - Validate
+Validator({
+    form: "#form-1",
+    errorSelector: ".form-message",
+    rules: [
+        Validator.isRequired('#fullname'),
+        Validator.isMaxLength('#fullname', 20),
+        Validator.isRequired('#email'),
+        Validator.isEmail('#email'),
+        Validator.isRequired('#phone'),
+        Validator.isPhone('#phone'),
+        Validator.isRequired('#birthday'),
+        Validator.isRequired('#password'),
+        Validator.Pass('#password'),
+        Validator.isRequired('#confirmpassword'),
+        Validator.confirmPass('#confirmpassword', function () {
+            return document.querySelector('#form-1 #password').value;
+        }, 'Mật Khẩu nhập lại không đúng'),
+    ],
+    onSubmit: function (data) {
+        const name = document.querySelector('#text-fullname')
+        const email = document.querySelector('#text-email')
+        const phone = document.querySelector('#text-phone')
+        const birthday = document.querySelector('#text-birthday')
+        name.innerHTML = data.fullName;
+        email.innerHTML = data.email;
+        phone.innerHTML = data.phone;
+        birthday.innerHTML = data.birthday;
+    }
+});
