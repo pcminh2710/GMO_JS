@@ -1,11 +1,7 @@
-var skip = document.getElementById('skip');
-var score = document.getElementById('score');
-var countdowntimer = document.getElementById('countdowntimer')
+const score = document.getElementById('score');
+const countdowntimer = document.getElementById('countdowntimer')
 var scoreCount = 0;
-var timeleft = 0;
-var count = 0;
-var qaSet = document.querySelectorAll('.qa_set');
-var qaAnsRow = document.querySelectorAll('.qa_ans_row input')
+const qaAnsRow = document.querySelectorAll('.qa_ans_row input')
 
 //Xử lý countdown
 var time = 30; // Set time
